@@ -4,7 +4,7 @@ import { UsersModule } from 'src/users/users.module';
 import { SocketGateway } from './socket.gateway';
 
 @Module({
-  providers: [SocketService, SocketGateway],
-  imports: [UsersModule]
+    providers: [SocketService, SocketGateway],
+    imports: [UsersModule],
 })
 export class SocketModule {}
