@@ -24,6 +24,18 @@ model User {
   zipCode       String
   streetName    String?
   addressNumber String
+  isValidated   Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  EmailValidation EmailValidation?
+}
+
+model EmailValidation {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
 }
