@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { HelpersModule } from './helpers/helpers.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { VerifyAuthMiddleware } from './verify-auth/verify-auth.middleware';
+import { NodemailerModule } from './nodemailer/nodemailer.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { VerifyAuthMiddleware } from './verify-auth/verify-auth.middleware';
         AuthModule,
         HelpersModule,
         DashboardModule,
+        NodemailerModule,
     ],
     controllers: [AppController],
     providers: [AppService],
