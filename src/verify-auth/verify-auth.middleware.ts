@@ -27,7 +27,11 @@ export class VerifyAuthMiddleware implements NestMiddleware {
             : authHeader.split(' ')[1];
         if (!token) throw new UnauthorizedException('Token inválido');
 
-        const id = this.jwtService.decode(token).id;
+        const id = this.jwtService.decode(token)?.id;
+        if (!id) {
+            throw new UnauthorizedException('Token inválido');
+        }
+
         const user = await this.usersService.findById(id);
         if (!user) throw new UnauthorizedException('Usuário não encontrado');
 
