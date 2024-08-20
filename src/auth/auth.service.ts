@@ -41,46 +41,50 @@ export class AuthService {
 
     async signUp(SignUpData: SignUpData): Promise<SignUpSuccessfull | void> {
         if (!SignUpData.email) {
-            throw new BadRequestException('Email is required');
+            throw new BadRequestException('Email é obrigatório');
         }
 
         const user = await this.usersService.findByEmail(SignUpData.email);
 
         if (user) {
-            throw new UnauthorizedException('User already exists');
+            throw new UnauthorizedException('Usuário já cadastrado');
         }
 
         if (SignUpData.password.length < 8) {
             throw new BadRequestException(
-                'Password must be at least 8 characters long',
+                'Senha deve conter no mínimo 8 caracteres',
             );
         }
 
         if (SignUpData.password !== SignUpData.confirmPassword) {
-            throw new BadRequestException('Passwords do not match');
+            throw new BadRequestException('Senhas não conferem');
         }
 
         if (!this.helpersService.validateEmail(SignUpData.email)) {
-            throw new BadRequestException('Invalid email');
+            throw new BadRequestException('Email inválido');
         }
 
         if (!this.helpersService.validateCPF(SignUpData.cpf)) {
-            throw new BadRequestException('Invalid CPF');
+            throw new BadRequestException('CPF inválido');
         }
 
         if (!(await this.helpersService.validateCNPJ(SignUpData.cnpj))) {
-            throw new BadRequestException('Invalid CNPJ');
+            throw new BadRequestException('CNPJ inválido');
         }
 
         const hashedPassword = await bcrypt.hash(SignUpData.password, 10);
 
-        await this.usersService.create({
+        return await this.usersService.create({
             ...SignUpData,
             password: hashedPassword,
         });
+    }
 
-        return {
-            message: `Um email de verificação foi enviado para ${user.email}. Acesse o link para ativar sua conta.`,
-        };
+    async getValidationEmail(authorization: string) {
+        return await this.usersService.getEmailValidationToken(authorization);
+    }
+
+    async validateEmail(token: string) {
+        return await this.usersService.validateEmail(token);
     }
 }

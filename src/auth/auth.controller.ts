@@ -1,4 +1,11 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    BadRequestException,
+    Headers,
+    Get,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
     SignInData,
@@ -23,5 +30,19 @@ export class AuthController {
     @Post('sign-up')
     signUp(@Body() signUpData: SignUpData): Promise<SignUpSuccessfull | void> {
         return this.authService.signUp(signUpData);
+    }
+
+    @Get('email-validate')
+    async getValidationEmail(
+        @Headers('authorization') authorization: string,
+    ): Promise<{ message: string } | void> {
+        return await this.authService.getValidationEmail(authorization);
+    }
+
+    @Post('email-validate')
+    async validateEmail(
+        @Body('token') token: string,
+    ): Promise<{ message: string } | void> {
+        return await this.authService.validateEmail(token);
     }
 }

@@ -1,11 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer';
 import { SendMailParams } from './interfaces/nodemailer.interface';
-import path from 'path';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 
 @Injectable()
 export class NodemailerService {
     private transporter = nodemailer.createTransport({
+        service: 'gmail',
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
@@ -29,6 +31,10 @@ export class NodemailerService {
             },
             (error) => {
                 if (error) {
+                    const date = new Date();
+                    console.log(
+                        `[${date.getDay()}/${date.getMonth()} - ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}]: ${error}`,
+                    );
                     throw new InternalServerErrorException(
                         'Erro ao enviar o email. Tente novamente mais tarde!',
                     );
@@ -46,8 +52,19 @@ export class NodemailerService {
             name,
             link: `${process.env.FRONTEND_LINK}/email-verification/${token}`,
         };
-        const html = path
-            .resolve(__dirname, 'templates', 'email-validation.html')
+        const html = fs
+            .readFileSync(
+                path.resolve(
+                    __dirname,
+                    '..',
+                    '..',
+                    'templates',
+                    'email-validation.html',
+                ),
+                {
+                    encoding: 'utf-8',
+                },
+            )
             .replace(/{{(\w+)}}/g, (_, key) => variables[key]);
 
         this.sendMail({

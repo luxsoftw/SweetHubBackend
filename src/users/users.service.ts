@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { NodemailerService } from 'src/nodemailer/nodemailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -12,6 +17,7 @@ export class UsersService {
     constructor(
         private prismaService: PrismaService,
         private nodemailerService: NodemailerService,
+        private jwtService: JwtService,
     ) {}
 
     async findById(id: string): Promise<Omit<User, 'password'> | null> {
@@ -48,8 +54,8 @@ export class UsersService {
         return user;
     }
 
-    async create(data: UserToCreate): Promise<User> {
-        const user = await this.prismaService.user.create({
+    async create(data: UserToCreate): Promise<{ message: string }> {
+        await this.prismaService.user.create({
             data: {
                 email: data.email,
                 password: data.password,
@@ -62,10 +68,24 @@ export class UsersService {
             },
         });
 
-        return user;
+        return {
+            message: `Conta criada com sucesso!`,
+        };
     }
 
-    async getEmailValidationToken(user: User) {
+    async getEmailValidationToken(authorization: string) {
+        if (!authorization) throw new UnauthorizedException('Token inválido');
+
+        const tokenJwt = Array.isArray(authorization)
+            ? authorization[1]
+            : authorization.split(' ')[1];
+        if (!tokenJwt) throw new UnauthorizedException('Token inválido');
+
+        const id = this.jwtService.decode(tokenJwt).id;
+        const user = await this.findById(id);
+
+        if (!user) throw new UnauthorizedException('Usuário não encontrado');
+
         if (user.isValidated) {
             throw new BadRequestException('Este email já é verificado');
         }
@@ -73,7 +93,7 @@ export class UsersService {
         const chars =
             '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let token = '';
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 24; i++) {
             token += chars[Math.floor(Math.random() * chars.length)];
         }
 
@@ -95,6 +115,10 @@ export class UsersService {
             emailValidation.token,
             user.fantasyName,
         );
+
+        return {
+            message: `Um email de verificação foi enviado para ${user.email}!`,
+        };
     }
 
     async validateEmail(token: string) {
@@ -127,5 +151,9 @@ export class UsersService {
         await this.prismaService.emailValidation.delete({
             where: { id: emailValidation.id },
         });
+
+        return {
+            message: 'Validação de email realizada com sucesso!',
+        };
     }
 }
