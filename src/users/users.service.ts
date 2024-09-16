@@ -38,6 +38,7 @@ export class UsersService {
                 updatedAt: true,
                 zipCode: true,
                 isValidated: true,
+                phone: true,
             },
         });
 
@@ -65,6 +66,7 @@ export class UsersService {
                 addressNumber: data.addressNumber,
                 companyName: data.companyName,
                 zipCode: data.zipCode,
+                phone: data.phone,
             },
         });
 

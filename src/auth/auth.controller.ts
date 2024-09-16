@@ -7,12 +7,7 @@ import {
     Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {
-    SignInData,
-    SignInSuccessfull,
-    SignUpData,
-    SignUpSuccessfull,
-} from './interfaces/Auth.interface';
+import { SignInData, SignInSuccessfull } from './interfaces/Auth.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -25,11 +20,6 @@ export class AuthController {
         if (!signInData.password)
             throw new BadRequestException('Password is required');
         return this.authService.signIn(signInData);
-    }
-
-    @Post('sign-up')
-    signUp(@Body() signUpData: SignUpData): Promise<SignUpSuccessfull | void> {
-        return this.authService.signUp(signUpData);
     }
 
     @Get('email-validate')

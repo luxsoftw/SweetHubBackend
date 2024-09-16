@@ -63,8 +63,6 @@ export class HelpersService {
             return [res.json(), res.status];
         });
 
-        console.log(JSON.stringify({ company: company[0] }));
-
         return company[1] === 200;
     }
 }

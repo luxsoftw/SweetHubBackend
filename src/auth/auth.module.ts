@@ -4,6 +4,7 @@ import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { HelpersModule } from 'src/helpers/helpers.module';
+import { SignUpModule } from './sign-up/sign-up.module';
 
 @Module({
     providers: [AuthService],
@@ -15,7 +16,9 @@ import { HelpersModule } from 'src/helpers/helpers.module';
             signOptions: { expiresIn: '1d' },
         }),
         HelpersModule,
+        SignUpModule,
     ],
+    exports: [AuthService],
     controllers: [AuthController],
 })
 export class AuthModule {}

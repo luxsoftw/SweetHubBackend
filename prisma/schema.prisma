@@ -24,6 +24,7 @@ model User {
   zipCode       String
   streetName    String?
   addressNumber String
+  phone         String
   isValidated   Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

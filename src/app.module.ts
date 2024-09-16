@@ -9,6 +9,7 @@ import { HelpersModule } from './helpers/helpers.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { VerifyAuthMiddleware } from './verify-auth/verify-auth.middleware';
 import { NodemailerModule } from './nodemailer/nodemailer.module';
+import { ValidatorsModule } from './validators/validators.module';
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { NodemailerModule } from './nodemailer/nodemailer.module';
         HelpersModule,
         DashboardModule,
         NodemailerModule,
+        ValidatorsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
