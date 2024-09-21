@@ -34,11 +34,15 @@ export class UsersService {
                 addressNumber: true,
                 companyName: true,
                 createdAt: true,
-                streetName: true,
+                fullAddress: true,
                 updatedAt: true,
-                zipCode: true,
+                cep: true,
                 isValidated: true,
                 phone: true,
+                city: true,
+                neighborhood: true,
+                name: true,
+                state: true,
             },
         });
 
@@ -65,8 +69,13 @@ export class UsersService {
                 cnpj: data.cnpj,
                 addressNumber: data.addressNumber,
                 companyName: data.companyName,
-                zipCode: data.zipCode,
+                cep: data.cep,
                 phone: data.phone,
+                city: data.city,
+                neighborhood: data.neighborhood,
+                fullAddress: data.fullAddress,
+                name: data.name,
+                state: data.state,
             },
         });
 

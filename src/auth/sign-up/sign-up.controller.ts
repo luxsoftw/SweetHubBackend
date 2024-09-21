@@ -5,12 +5,14 @@ import { SignUpData, SignUpSuccessfull } from '../interfaces/Auth.interface';
 import { SignUpService } from './sign-up.service';
 import { CompanyInfoSchema } from 'src/validators/schemas/auth/CompanyInfo.schema';
 import { addressInfoSchema } from 'src/validators/schemas/auth/AddressInfo.schema';
+import { signUpSchema } from 'src/validators/schemas/auth/SignUp.schema';
 
 @Controller('auth/sign-up')
 export class SignUpController {
     constructor(private signUpService: SignUpService) {}
 
     @Post()
+    @UsePipes(new ValidatorsPipe(signUpSchema))
     signUp(@Body() signUpData: SignUpData): Promise<SignUpSuccessfull | void> {
         return this.signUpService.signUp(signUpData);
     }

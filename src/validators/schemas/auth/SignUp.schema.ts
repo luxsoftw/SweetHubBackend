@@ -33,6 +33,7 @@ export const signUpSchema = z
         fullAddress: z
             .string()
             .min(3, 'O endereço deve ter no mínimo 3 caracteres'),
+        addressNumber: z.string(),
     })
     .required()
     .refine((data) => data.password === data.confirmPassword, {

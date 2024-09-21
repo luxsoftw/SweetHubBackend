@@ -19,10 +19,14 @@ model User {
   password      String
   fantasyName   String
   cnpj          String   @unique
+  name          String
+  fullAddress   String
   companyName   String
   cpf           String
-  zipCode       String
-  streetName    String?
+  city          String
+  state         String
+  neighborhood  String
+  cep           String
   addressNumber String
   phone         String
   isValidated   Boolean  @default(false)
