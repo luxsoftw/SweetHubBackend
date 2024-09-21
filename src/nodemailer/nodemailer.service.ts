@@ -50,7 +50,7 @@ export class NodemailerService {
     ): Promise<void> {
         const variables = {
             name,
-            link: `${process.env.FRONTEND_LINK}/email-verification/${token}`,
+            link: `${process.env.FRONTEND_LINK}/verification/${token}`,
         };
         const html = fs
             .readFileSync(
