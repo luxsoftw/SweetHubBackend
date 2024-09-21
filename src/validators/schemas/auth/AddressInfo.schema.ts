@@ -1,15 +1,5 @@
 import { z } from 'zod';
 
-const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
-    if (issue.code === 'invalid_type') {
-        return { message: 'Campo obrigatório' };
-    }
-
-    return { message: ctx.defaultError };
-};
-
-z.setErrorMap(customErrorMap);
-
 export const addressInfoSchema = z
     .object({
         cep: z.string().length(8, 'O CEP deve ter 8 caracteres'),

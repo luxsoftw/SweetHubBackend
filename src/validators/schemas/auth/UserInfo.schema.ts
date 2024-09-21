@@ -1,16 +1,6 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 import { z } from 'zod';
 
-const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
-    if (issue.code === 'invalid_type') {
-        return { message: 'Campo obrigatório' };
-    }
-
-    return { message: ctx.defaultError };
-};
-
-z.setErrorMap(customErrorMap);
-
 const prisma = new PrismaService();
 
 export const userInfoSchema = z

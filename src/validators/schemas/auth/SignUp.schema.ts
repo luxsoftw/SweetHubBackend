@@ -3,8 +3,19 @@ import { z } from 'zod';
 
 const prisma = new PrismaService();
 
-export const CompanyInfoSchema = z
+export const signUpSchema = z
     .object({
+        name: z
+            .string()
+            .min(3, 'O nome deve ter no mínimo 3 caracteres')
+            .max(255, 'O nome deve ter no máximo 255 caracteres'),
+        email: z.string().email('Insira um email válido'),
+        phone: z.string().length(11, 'Insira um telefone válido'),
+        password: z
+            .string()
+            .min(8, 'A senha deve ter no mínimo 8 caracteres')
+            .max(16, 'A senha deve ter no máximo 16 caracteres'),
+        confirmPassword: z.string(),
         cnpj: z.string().length(14, 'O CNPJ deve ter 14 caracteres'),
         cpf: z.string().length(11, 'O CPF deve ter 11 caracteres'),
         companyName: z
@@ -13,8 +24,36 @@ export const CompanyInfoSchema = z
         fantasyName: z
             .string()
             .min(3, 'O nome fantasia deve ter no mínimo 3 caracteres'),
+        cep: z.string().length(8, 'O CEP deve ter 8 caracteres'),
+        state: z.string().min(2, 'O estado deve ter no mínimo 2 caracteres'),
+        city: z.string().min(3, 'A rua deve ter no mínimo 3 caracteres'),
+        neighborhood: z
+            .string()
+            .min(3, 'O bairro deve ter no mínimo 3 caracteres'),
+        fullAddress: z
+            .string()
+            .min(3, 'O endereço deve ter no mínimo 3 caracteres'),
     })
     .required()
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'Senhas não conferem',
+        path: ['confirmPassword'],
+    })
+    .refine(
+        async (data) => {
+            const company = await prisma.user.findUnique({
+                where: { email: data.email },
+            });
+            if (company) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: 'Este email já está em uso',
+            path: ['email'],
+        },
+    )
     .refine(
         async (data) => {
             const company = await prisma.user.findUnique({
@@ -94,4 +133,4 @@ export const CompanyInfoSchema = z
         },
     );
 
-export type CompanyInfoDto = z.infer<typeof CompanyInfoSchema>;
+export type SignUpDto = z.infer<typeof signUpSchema>;
