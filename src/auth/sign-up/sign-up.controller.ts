@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { userInfoSchema } from 'src/validators/schemas/auth/UserInfo.schema';
 import { ValidatorsPipe } from 'src/validators/validators.pipe';
 import { SignUpData, SignUpSuccessfull } from '../interfaces/Auth.interface';
@@ -17,15 +17,15 @@ export class SignUpController {
         return this.signUpService.signUp(signUpData);
     }
 
-    @Get('validate/user-info')
+    @Post('validate/user-info')
     @UsePipes(new ValidatorsPipe(userInfoSchema))
     userInfo() {}
 
-    @Get('validate/company-info')
+    @Post('validate/company-info')
     @UsePipes(new ValidatorsPipe(CompanyInfoSchema))
     companyInfo() {}
 
-    @Get('validate/address-info')
+    @Post('validate/address-info')
     @UsePipes(new ValidatorsPipe(addressInfoSchema))
     address() {}
 }
