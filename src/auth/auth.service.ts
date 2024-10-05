@@ -28,8 +28,23 @@ export class AuthService {
         return { token };
     }
 
-    async getValidationEmail(authorization: string) {
-        return await this.usersService.getEmailValidationToken(authorization);
+    async getValidationEmail(authHeader: string) {
+        if (!authHeader) throw new UnauthorizedException('Token inválido');
+
+        const token = Array.isArray(authHeader)
+            ? authHeader[1]
+            : authHeader.split(' ')[1];
+        if (!token) throw new UnauthorizedException('Token inválido');
+
+        const id = this.jwtService.decode(token)?.id;
+        if (!id) {
+            throw new UnauthorizedException('Token inválido');
+        }
+
+        const user = await this.usersService.findById(id);
+        if (!user) throw new UnauthorizedException('Usuário não encontrado');
+
+        return await this.usersService.getEmailValidationToken(user);
     }
 
     async validateEmail(token: string) {

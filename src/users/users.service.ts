@@ -1,9 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-    UnauthorizedException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { NodemailerService } from 'src/nodemailer/nodemailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -17,7 +12,6 @@ export class UsersService {
     constructor(
         private prismaService: PrismaService,
         private nodemailerService: NodemailerService,
-        private jwtService: JwtService,
     ) {}
 
     async findById(id: string): Promise<Omit<User, 'password'> | null> {
@@ -60,7 +54,7 @@ export class UsersService {
     }
 
     async create(data: UserToCreate): Promise<{ message: string }> {
-        await this.prismaService.user.create({
+        const user = await this.prismaService.user.create({
             data: {
                 email: data.email,
                 password: data.password,
@@ -79,28 +73,14 @@ export class UsersService {
             },
         });
 
+        await this.getEmailValidationToken(user);
+
         return {
             message: `Conta criada com sucesso!`,
         };
     }
 
-    async getEmailValidationToken(authorization: string) {
-        if (!authorization) throw new UnauthorizedException('Token inválido');
-
-        const tokenJwt = Array.isArray(authorization)
-            ? authorization[1]
-            : authorization.split(' ')[1];
-        if (!tokenJwt) throw new UnauthorizedException('Token inválido');
-
-        const id = this.jwtService.decode(tokenJwt).id;
-        const user = await this.findById(id);
-
-        if (!user) throw new UnauthorizedException('Usuário não encontrado');
-
-        if (user.isValidated) {
-            throw new BadRequestException('Este email já é verificado');
-        }
-
+    async getEmailValidationToken(user: Omit<User, 'password'>) {
         const chars =
             '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let token = '';
@@ -121,7 +101,7 @@ export class UsersService {
             },
         );
 
-        this.nodemailerService.sendEmailValidation(
+        await this.nodemailerService.sendEmailValidation(
             user.email,
             emailValidation.token,
             user.fantasyName,
