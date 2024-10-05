@@ -5,7 +5,6 @@ import { CompaniesModule } from './companies/companies.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SocketModule } from './socket/socket.module';
 import { AuthModule } from './auth/auth.module';
-import { HelpersModule } from './helpers/helpers.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { VerifyAuthMiddleware } from './verify-auth/verify-auth.middleware';
 import { NodemailerModule } from './nodemailer/nodemailer.module';
@@ -17,7 +16,6 @@ import { ValidatorsModule } from './validators/validators.module';
         PrismaModule,
         SocketModule,
         AuthModule,
-        HelpersModule,
         DashboardModule,
         NodemailerModule,
         ValidatorsModule,
