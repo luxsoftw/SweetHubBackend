@@ -24,7 +24,7 @@ export const userInfoSchema = z
     })
     .refine(
         async (data) => {
-            const company = await prisma.user.findUnique({
+            const company = await prisma.company.findUnique({
                 where: { email: data.email },
             });
             if (company) {

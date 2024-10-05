@@ -1,21 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Company } from '@prisma/client';
 import { NodemailerService } from 'src/nodemailer/nodemailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-
-interface UserToCreate extends Omit<User, 'id' | 'createdAt' | 'updatedAt'> {
-    confirmPassword: string;
-}
+import { SignUpDto } from 'src/validators/schemas/auth/SignUp.schema';
 
 @Injectable()
-export class UsersService {
+export class CompaniesService {
     constructor(
         private prismaService: PrismaService,
         private nodemailerService: NodemailerService,
     ) {}
 
-    async findById(id: string): Promise<Omit<User, 'password'> | null> {
-        const user = await this.prismaService.user.findUnique({
+    async findById(id: string): Promise<Omit<Company, 'password'> | null> {
+        const company = await this.prismaService.company.findUnique({
             where: {
                 id,
             },
@@ -25,62 +22,67 @@ export class UsersService {
                 email: true,
                 cpf: true,
                 cnpj: true,
-                addressNumber: true,
                 companyName: true,
                 createdAt: true,
-                fullAddress: true,
                 updatedAt: true,
-                cep: true,
                 isValidated: true,
                 phone: true,
-                city: true,
-                neighborhood: true,
                 name: true,
-                state: true,
+                Address: true,
             },
         });
 
-        return user;
+        return company;
     }
 
-    async findByEmail(email: string): Promise<User | null> {
-        const user = await this.prismaService.user.findUnique({
+    async findByEmail(email: string): Promise<Company | null> {
+        const company = await this.prismaService.company.findUnique({
             where: {
                 email,
             },
         });
 
-        return user;
+        return company;
     }
 
-    async create(data: UserToCreate): Promise<{ message: string }> {
-        const user = await this.prismaService.user.create({
+    async create(data: SignUpDto): Promise<{ message: string }> {
+        const company = await this.prismaService.company.create({
             data: {
                 email: data.email,
                 password: data.password,
                 fantasyName: data.fantasyName,
                 cpf: data.cpf,
                 cnpj: data.cnpj,
-                addressNumber: data.addressNumber,
                 companyName: data.companyName,
-                cep: data.cep,
                 phone: data.phone,
-                city: data.city,
-                neighborhood: data.neighborhood,
-                fullAddress: data.fullAddress,
                 name: data.name,
-                state: data.state,
             },
         });
 
-        await this.getEmailValidationToken(user);
+        await this.prismaService.address.create({
+            data: {
+                Company: {
+                    connect: {
+                        id: company.id,
+                    },
+                },
+                cep: data.cep,
+                state: data.state,
+                city: data.city,
+                neighborhood: data.neighborhood,
+                fullAddress: data.fullAddress,
+                addressNumber: data.addressNumber,
+            },
+        });
+
+        await this.getEmailValidationToken(company);
 
         return {
             message: `Conta criada com sucesso!`,
         };
     }
 
-    async getEmailValidationToken(user: Omit<User, 'password'>) {
+    async getEmailValidationToken(company: Omit<Company, 'password'>) {
         const chars =
             '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let token = '';
@@ -90,9 +92,9 @@ export class UsersService {
 
         const emailValidation = await this.prismaService.emailValidation.upsert(
             {
-                where: { userId: user.id },
+                where: { companyId: company.id },
                 create: {
-                    userId: user.id,
+                    companyId: company.id,
                     token,
                 },
                 update: {
@@ -102,13 +104,13 @@ export class UsersService {
         );
 
         await this.nodemailerService.sendEmailValidation(
-            user.email,
+            company.email,
             emailValidation.token,
-            user.fantasyName,
+            company.fantasyName,
         );
 
         return {
-            message: `Um email de verificação foi enviado para ${user.email}!`,
+            message: `Um email de verificação foi enviado para ${company.email}!`,
         };
     }
 
@@ -117,7 +119,7 @@ export class UsersService {
             await this.prismaService.emailValidation.findFirst({
                 where: { token },
                 include: {
-                    User: true,
+                    Company: true,
                 },
             });
 
@@ -132,8 +134,8 @@ export class UsersService {
             throw new BadRequestException('Token expirado');
         }
 
-        await this.prismaService.user.update({
-            where: { id: emailValidation.userId },
+        await this.prismaService.company.update({
+            where: { id: emailValidation.companyId },
             data: {
                 isValidated: true,
             },

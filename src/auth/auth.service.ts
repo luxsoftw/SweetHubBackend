@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { CompaniesService } from 'src/companies/companies.service';
 import { SignInData, SignInSuccessfull } from './interfaces/Auth.interface';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -7,23 +7,28 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly usersService: UsersService,
+        private readonly companiesService: CompaniesService,
         private jwtService: JwtService,
     ) {}
 
     async signIn(signInData: SignInData): Promise<SignInSuccessfull | void> {
-        const user = await this.usersService.findByEmail(signInData.email);
+        const company = await this.companiesService.findByEmail(
+            signInData.email,
+        );
 
-        if (!user) {
+        if (!company) {
             throw new UnauthorizedException('User not found');
         }
-        const match = await bcrypt.compare(signInData.password, user.password);
+        const match = await bcrypt.compare(
+            signInData.password,
+            company.password,
+        );
 
         if (!match) {
             throw new UnauthorizedException('Incorrect password');
         }
 
-        const token = this.jwtService.sign({ id: user.id });
+        const token = this.jwtService.sign({ id: company.id });
 
         return { token };
     }
@@ -41,13 +46,13 @@ export class AuthService {
             throw new UnauthorizedException('Token inválido');
         }
 
-        const user = await this.usersService.findById(id);
-        if (!user) throw new UnauthorizedException('Usuário não encontrado');
+        const company = await this.companiesService.findById(id);
+        if (!company) throw new UnauthorizedException('Usuário não encontrado');
 
-        return await this.usersService.getEmailValidationToken(user);
+        return await this.companiesService.getEmailValidationToken(company);
     }
 
     async validateEmail(token: string) {
-        return await this.usersService.validateEmail(token);
+        return await this.companiesService.validateEmail(token);
     }
 }

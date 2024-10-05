@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { Company } from '@prisma/client';
 
 export interface SignInSuccessfull {
     token: string;
@@ -10,7 +10,7 @@ export interface SignInData {
 }
 
 export interface SignUpData
-    extends Omit<User, 'id' | 'createdAt' | 'updatedAt'> {
+    extends Omit<Company, 'id' | 'createdAt' | 'updatedAt'> {
     confirmPassword: string;
 }
 

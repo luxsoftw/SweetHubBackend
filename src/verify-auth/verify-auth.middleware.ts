@@ -4,21 +4,16 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
-import { UsersService } from 'src/users/users.service';
-
-interface RequestWithUser extends Request {
-    user?: User;
-}
+import { CompaniesService } from 'src/companies/companies.service';
 
 @Injectable()
 export class VerifyAuthMiddleware implements NestMiddleware {
     constructor(
-        private usersService: UsersService,
+        private companiesService: CompaniesService,
         private jwtService: JwtService,
     ) {}
-    async use(req: RequestWithUser, res: Response, next: NextFunction) {
+    async use(req: Request, res: Response, next: NextFunction) {
         const authHeader = req.headers.authorization;
         if (!authHeader) throw new UnauthorizedException('Token inválido');
 
@@ -32,16 +27,16 @@ export class VerifyAuthMiddleware implements NestMiddleware {
             throw new UnauthorizedException('Token inválido');
         }
 
-        const user = await this.usersService.findById(id);
-        if (!user) throw new UnauthorizedException('Usuário não encontrado');
+        const company = await this.companiesService.findById(id);
+        if (!company) throw new UnauthorizedException('Usuário não encontrado');
 
-        if (!user.isValidated) {
+        if (!company.isValidated) {
             throw new UnauthorizedException('Valide seu email para continuar', {
                 cause: 'verification-email',
             });
         }
 
-        req.body.user = user;
+        req.body.company = company;
         next();
     }
 }

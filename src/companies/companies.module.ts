@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { UsersService } from './users.service';
+import { CompaniesService } from './companies.service';
 import { NodemailerModule } from 'src/nodemailer/nodemailer.module';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -14,7 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
             signOptions: { expiresIn: '1d' },
         }),
     ],
-    providers: [UsersService],
-    exports: [UsersService],
+    providers: [CompaniesService],
+    exports: [CompaniesService],
 })
-export class UsersModule {}
+export class CompaniesModule {}

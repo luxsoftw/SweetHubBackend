@@ -1,11 +1,10 @@
 import { Body, Controller, Get } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Company } from '@prisma/client';
 
 @Controller('dashboard')
 export class DashboardController {
     @Get()
-    async getDashboard(@Body('user') user: Omit<User, 'password'>) {
-        console.log({ user });
-        return `Dashboard da Empresa ${user.fantasyName}`;
+    async getDashboard(@Body('company') company: Omit<Company, 'password'>) {
+        return `Dashboard da Empresa ${company.fantasyName}`;
     }
 }

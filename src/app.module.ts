@@ -1,7 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
+import { CompaniesModule } from './companies/companies.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SocketModule } from './socket/socket.module';
 import { AuthModule } from './auth/auth.module';
@@ -13,7 +13,7 @@ import { ValidatorsModule } from './validators/validators.module';
 
 @Module({
     imports: [
-        UsersModule,
+        CompaniesModule,
         PrismaModule,
         SocketModule,
         AuthModule,
@@ -21,6 +21,7 @@ import { ValidatorsModule } from './validators/validators.module';
         DashboardModule,
         NodemailerModule,
         ValidatorsModule,
+        CompaniesModule,
     ],
     controllers: [AppController],
     providers: [AppService],

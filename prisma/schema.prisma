@@ -13,34 +13,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Company {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  fantasyName String
+  cnpj        String   @unique
+  name        String
+  companyName String
+  cpf         String
+  phone       String
+  isValidated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  EmailValidation EmailValidation?
+  Address         Address?
+}
+
+model Address {
   id            String   @id @default(cuid())
-  email         String   @unique
-  password      String
-  fantasyName   String
-  cnpj          String   @unique
-  name          String
-  fullAddress   String
-  companyName   String
-  cpf           String
+  companyId     String   @unique
   city          String
   state         String
   neighborhood  String
   cep           String
   addressNumber String
-  phone         String
-  isValidated   Boolean  @default(false)
+  fullAddress   String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  EmailValidation EmailValidation?
+  Company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model EmailValidation {
   id        String   @id @default(cuid())
-  userId    String   @unique
+  companyId String   @unique
   token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  User      User     @relation(fields: [userId], references: [id])
+  Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }

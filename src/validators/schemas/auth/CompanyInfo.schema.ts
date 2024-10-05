@@ -17,7 +17,7 @@ export const CompanyInfoSchema = z
     .required()
     .refine(
         async (data) => {
-            const company = await prisma.user.findUnique({
+            const company = await prisma.company.findUnique({
                 where: { cnpj: data.cnpj },
             });
             if (company) {
