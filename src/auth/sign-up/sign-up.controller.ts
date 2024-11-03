@@ -1,15 +1,34 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
-import { userInfoSchema } from 'src/validators/schemas/auth/UserInfo.schema';
+import {
+    Body,
+    ConflictException,
+    Controller,
+    Post,
+    UsePipes,
+} from '@nestjs/common';
+import {
+    UserInfoDto,
+    userInfoSchema,
+} from 'src/validators/schemas/auth/UserInfo.schema';
 import { ValidatorsPipe } from 'src/validators/validators.pipe';
 import { SignUpData, SignUpSuccessfull } from '../interfaces/Auth.interface';
 import { SignUpService } from './sign-up.service';
-import { CompanyInfoSchema } from 'src/validators/schemas/auth/CompanyInfo.schema';
-import { addressInfoSchema } from 'src/validators/schemas/auth/AddressInfo.schema';
+import {
+    CompanyInfoDto,
+    CompanyInfoSchema,
+} from 'src/validators/schemas/auth/CompanyInfo.schema';
+import {
+    AddressInfoDto,
+    addressInfoSchema,
+} from 'src/validators/schemas/auth/AddressInfo.schema';
 import { signUpSchema } from 'src/validators/schemas/auth/SignUp.schema';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Controller('auth/sign-up')
 export class SignUpController {
-    constructor(private signUpService: SignUpService) {}
+    constructor(
+        private signUpService: SignUpService,
+        private prismaService: PrismaService,
+    ) {}
 
     @Post()
     @UsePipes(new ValidatorsPipe(signUpSchema))
@@ -19,13 +38,38 @@ export class SignUpController {
 
     @Post('validate/user-info')
     @UsePipes(new ValidatorsPipe(userInfoSchema))
-    userInfo() {}
+    async userInfo(@Body() userInfo: UserInfoDto) {
+        const { email } = userInfo;
+        const userWithSameEmail = await this.prismaService.company.findUnique({
+            where: { email },
+        });
+
+        if (userWithSameEmail) {
+            return false;
+        }
+
+        return true;
+    }
 
     @Post('validate/company-info')
     @UsePipes(new ValidatorsPipe(CompanyInfoSchema))
-    companyInfo() {}
+    async companyInfo(@Body() companyInfo: CompanyInfoDto) {
+        const { cnpj } = companyInfo;
+
+        const companyWithSameCnpj = await this.prismaService.company.findUnique(
+            { where: { cnpj } },
+        );
+
+        if (companyWithSameCnpj) {
+            throw new ConflictException(
+                'Company with same cnpj address already exist.',
+            );
+        }
+    }
 
     @Post('validate/address-info')
     @UsePipes(new ValidatorsPipe(addressInfoSchema))
-    address() {}
+    address(@Body() addressInfo: AddressInfoDto) {
+        return addressInfo;
+    }
 }
