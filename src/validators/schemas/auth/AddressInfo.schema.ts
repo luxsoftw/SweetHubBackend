@@ -11,6 +11,7 @@ export const addressInfoSchema = z
         fullAddress: z
             .string()
             .min(3, 'O endereço deve ter no mínimo 3 caracteres'),
+        addressNumber: z.string(),
     })
     .required();
 
